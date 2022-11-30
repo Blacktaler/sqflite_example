@@ -6,7 +6,8 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class AddProduct extends StatefulWidget {
-  const AddProduct({super.key});
+  AddProduct(this.callback);
+  void Function(List<ProductModel> products) callback;
 
   @override
   State<AddProduct> createState() => _AddProductState();
@@ -14,10 +15,18 @@ class AddProduct extends StatefulWidget {
 
 class _AddProductState extends State<AddProduct> {
   late List<TextEditingController> controllers;
+  List<ProductModel>? products;
+
+  @override
+  void dispose() {
+    widget.callback(products!);
+
+    super.dispose();
+  }
+
   @override
   void initState() {
-    controllers = List.generate(
-        4, (index) => TextEditingController());
+    controllers = List.generate(4, (index) => TextEditingController());
     setState(() {});
     super.initState();
   }
@@ -25,6 +34,14 @@ class _AddProductState extends State<AddProduct> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: buttonFunction,
+            child: Text("save"),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           textMethod(controllers[0]),
@@ -34,19 +51,7 @@ class _AddProductState extends State<AddProduct> {
           SizedBox(
             height: 100,
           ),
-          ElevatedButton(
-              onPressed: () {
-                final product = ProductModel(
-                    id: int.parse(controllers[0].text),
-                    name: controllers[1].text,
-                    companyName: controllers[2].text,
-                    price: int.parse(controllers[3].text));
-
-                ProductsDatabase.instance.create(product);
-                setState(() {});
-                Navigator.pop(context);
-              },
-              child: Text("Enter"))
+          // ElevatedButton(onPressed: buttonFunction, child: Text("Enter")),
         ],
       ),
     );
@@ -57,5 +62,20 @@ class _AddProductState extends State<AddProduct> {
       controller: controller,
       decoration: InputDecoration(border: OutlineInputBorder()),
     );
+  }
+
+  buttonFunction() async {
+    final product = ProductModel(
+        id: int.parse(controllers[0].text),
+        name: controllers[1].text,
+        companyName: controllers[2].text,
+        price: int.parse(controllers[3].text));
+
+    ProductsDatabase.instance.create(product);
+
+    products = await ProductsDatabase.instance.readAllProducts();
+    setState(() {});
+
+    Navigator.pop(context);
   }
 }

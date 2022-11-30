@@ -6,7 +6,6 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class ProductsPage extends StatefulWidget {
-  const ProductsPage({super.key});
 
   @override
   State<ProductsPage> createState() => _ProductsPageState();
@@ -30,7 +29,7 @@ class _ProductsPageState extends State<ProductsPage> {
           FloatingActionButton(
             heroTag: '1',
             onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (_)=>AddProduct()));
+            Navigator.push(context, MaterialPageRoute(builder: (_)=>AddProduct(updateCallback)));
           },child: Icon(Icons.add),),
           FloatingActionButton(
             heroTag: '2',
@@ -59,6 +58,16 @@ class _ProductsPageState extends State<ProductsPage> {
               child: CircularProgressIndicator(),
             ),
     );
+  }
+
+  updateCallback(List<ProductModel> product){
+    
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
+
+      products = product;
+      setState(() {});
+   
+    });
   }
 
   updateProducts() async {
