@@ -83,6 +83,6 @@ class ProductsDatabase {
   delete(int id) async {
     final db = await instance.database;
 
-    await db.delete(productTable, where: '${ProductFields.id}==? ', whereArgs: [id]);
+    await db.delete(productTable, where: '${ProductFields.id}==? ', whereArgs: [id]);//id si orqali delete qilinadi
   }
 }
