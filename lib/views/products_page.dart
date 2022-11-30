@@ -1,12 +1,12 @@
 import 'package:dars26/db/products_database.dart';
 import 'package:dars26/models/product_model.dart';
 import 'package:dars26/views/add_product.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class ProductsPage extends StatefulWidget {
-
   @override
   State<ProductsPage> createState() => _ProductsPageState();
 }
@@ -23,20 +23,18 @@ class _ProductsPageState extends State<ProductsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: Column(
-        children: [
-
-          FloatingActionButton(
-            heroTag: '1',
-            onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (_)=>AddProduct(updateCallback)));
-          },child: Icon(Icons.add),),
-          FloatingActionButton(
-            heroTag: '2',
-            onPressed: (){
-            updateProducts();
-          },child: Icon(Icons.refresh),)
-        ],
+      floatingActionButton: FloatingActionButton(
+        heroTag: '1',
+        onPressed: () {
+          pageRoute(
+            
+            AddProduct(
+             updateCallback,
+            isUpdate: false,
+            id: 0,//bu id ishlatilmaydi
+          ));
+        },
+        child: Icon(Icons.add),
       ),
       appBar: AppBar(),
       body: !isloading
@@ -51,6 +49,25 @@ class _ProductsPageState extends State<ProductsPage> {
                       leading: Text(products![index].id.toString()),
                       title: Text(products![index].name),
                       subtitle: Text(products![index].companyName),
+                      trailing: Row(
+                        children: [
+                          CupertinoButton(
+                              child: Icon(Icons.edit),
+                              onPressed: () {
+                                pageRoute(
+                                  AddProduct(
+                                 updateCallback,
+                                  isUpdate: true,
+                                  id: products![index].id, //bu id ishlatiladi
+                                ));
+                              }),
+                          IconButton(onPressed: (){
+                            products!.removeAt(index);
+                            setState(() {});
+                            ProductsDatabase.instance.delete(products![index].id);
+                          }, icon: Icon(Icons.delete_rounded,color: Colors.red,))
+                        ],
+                      ),
                     );
                   },
                 )
@@ -60,13 +77,10 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  updateCallback(List<ProductModel> product){
-    
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) { 
-
+  updateCallback(List<ProductModel> product) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       products = product;
       setState(() {});
-   
     });
   }
 
@@ -76,5 +90,9 @@ class _ProductsPageState extends State<ProductsPage> {
     products = await ProductsDatabase.instance.readAllProducts();
 
     setState(() => isloading = false);
+  }
+
+  void pageRoute(Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
 }
