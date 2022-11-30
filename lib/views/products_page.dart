@@ -62,9 +62,9 @@ class _ProductsPageState extends State<ProductsPage> {
                                 ));
                               }),
                           IconButton(onPressed: (){
+                            ProductsDatabase.instance.delete(products![index].id);
                             products!.removeAt(index);
                             setState(() {});
-                            ProductsDatabase.instance.delete(products![index].id);
                           }, icon: Icon(Icons.delete_rounded,color: Colors.red,))
                         ],
                       ),
